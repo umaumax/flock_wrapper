@@ -28,7 +28,7 @@ if [[ -z "$SCREEN_CMD" ]]; then
   }
 else
   function flock_wrapper() {
-    screen -dmS "test" "$@"
+    screen -dmS "flock_wrapper" "$@"
   }
 fi
 
