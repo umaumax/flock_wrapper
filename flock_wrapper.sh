@@ -55,20 +55,48 @@ function main-run() {
 function main-check() {
   mkdir -p "$app_control_target_dir"
 
-  local pid_file_path="$app_control_target_dir/latest/pid"
-  local cmd_pid="$(cat "$pid_file_path")"
-  local output_file_path="$app_control_target_dir/latest/output"
-  local status
-  if flock -n "$app_control_target_dir/lockfile" true; then
-    if [[ ! -e "$output_file_path" ]]; then
-      echo '{"status":"none","pid":null,"output":null}'
-      return
+  (
+    local pid_file_path="$app_control_target_dir/latest/pid"
+    export pid
+    if [[ -e "$pid_file_path" ]]; then
+      pid="$(cat "$pid_file_path")"
     fi
-    status="completed"
-  else
-    status="running"
-  fi
-  echo '{"status":"'"$status"'","pid":"'"$cmd_pid"'","output":"'"$output_file_path"'"}'
+    export output_file_path="$app_control_target_dir/latest/output"
+    export status
+    export exit_code
+    local exit_code_file_path="$app_control_target_dir/latest/exit_code"
+    if [[ ! -e "$exit_code_file_path" ]]; then
+      unset exit_code
+    fi
+    if flock -n "$app_control_target_dir/lockfile" true; then
+      if [[ ! -e "$output_file_path" ]]; then
+        status="none"
+      else
+        status="completed"
+      fi
+    else
+      status="running"
+    fi
+    if [[ ! -e "$output_file_path" ]]; then
+      unset output_file_path
+    fi
+
+    local screen_socket_name_file_path="$app_control_target_dir/latest/screen_socket_name"
+    if [[ -e "$screen_socket_name_file_path" ]]; then
+      export screen_socket_name="$(cat "$screen_socket_name_file_path")"
+    fi
+    python3 - <<EOF
+import os;
+import json;
+print(json.dumps({
+    "status": os.environ["status"],
+    "pid": int(os.getenv("pid")) if os.getenv("pid") else None,
+    "output_file_path": os.getenv("output_file_path"),
+    "exit_code": int(os.getenv("exit_code")) if os.getenv("exit_code") else None,
+    "screen_socket_name": os.getenv("screen_socket_name"),
+}, ensure_ascii=False,indent=True))
+EOF
+  )
 }
 
 function main-stop() {

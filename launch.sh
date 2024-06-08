@@ -20,6 +20,9 @@ function main() {
   mkdir -p "$app_control_target_dir/$record_dir_name"
   ln -sfn "$record_dir_name" "$app_control_target_dir/latest"
 
+  if [[ -v STY ]]; then
+    echo "$STY" >"$app_control_target_dir/latest/screen_socket_name"
+  fi
   echo "$*" >"$app_control_target_dir/latest/command"
   local exit_code=0
   if [[ -n "$FLOCK_EXIT_CODE_PIPE_PATH" ]]; then
