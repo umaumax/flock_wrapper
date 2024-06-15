@@ -79,6 +79,8 @@ function main-check() {
     fi
     if [[ ! -e "$output_file_path" ]]; then
       unset output_file_path
+    else
+      output_file_path="$(realpath $output_file_path)"
     fi
 
     local screen_socket_name_file_path="$app_control_target_dir/latest/screen_socket_name"
