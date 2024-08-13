@@ -54,8 +54,8 @@ steps
 * The environment variable `SCREEN_CMD=screen` is used to run a command in the background.
   * If `SCREEN_CMD=` is set, a command runs in the foreground.
 
-# TODOs
+## TODOs
 * [ ] 図で挙動を整理する
 
-# NOTE: `tail -f`として、そのファイルへの書き込みが終了しても閉じられないのは仕様である
+## NOTE: `tail -f`として、そのファイルへの書き込みが終了しても閉じられないのは仕様である
 [linux - How do I stop tail command in script - Stack Overflow]( https://stackoverflow.com/questions/28600353/how-do-i-stop-tail-command-in-script )
